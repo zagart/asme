@@ -1,5 +1,6 @@
 PORTA	equ 0x05
 PORTB	equ 0x06
+curMode	equ 0x1C
 
 	code
 
@@ -41,7 +42,7 @@ Check
 	goto Etc
 	goto Mode		
 Mode
-	btfsc PORTB,2
+	btfsc PORTB,1
 	goto modeSelect
 	incf 0x1E,1
 	decfsz 0x1D,1
@@ -53,7 +54,104 @@ Err
 	goto Check
 
 modeSelect
+firstCheck
+	decfsz 0x1E,1
+	goto secondCheck
+	goto firstMode
+secondCheck
+	decfsz 0x1E,1
+	goto thirdCheck
+	goto secondMode
+thirdCheck
+	decfsz 0x1E,1
+	goto fourthCheck
+	goto thirdMode
+fourthCheck
+	decfsz 0x1E,1
+	goto fifthCheck
+	goto fourthMode
+fifthCheck
+	decfsz 0x1E,1
+	goto sixCheck
+	goto fifthMode
+sixCheck
+	goto sixMode
 
+firstMode
+	clrw
+	movlw 0x01
+	movwf curMode
+	btfsc PORTB,2
+	goto switchOff
+	bcf PORTA,5
+	bsf PORTA,0
+	nop
+	goto firstMode
+secondMode
+	clrw
+	movlw 0x02
+	movwf curMode
+	bcf PORTA,5
+	nop
+	goto secondMode
+thirdMode
+	clrw
+	movlw 0x03
+	movwf curMode
+	bcf PORTA,5
+	nop
+	goto thirdMode
+fourthMode
+	clrw
+	movlw 0x04
+	movwf curMode
+	bcf PORTA,5
+	nop
+	goto fourthMode
+fifthMode
+	clrw
+	movlw 0x05
+	movwf curMode
+	bcf PORTA,5
+	nop
+	goto fifthMode
+sixMode
+	clrw
+	movlw 0x06
+	movwf curMode
+	bcf PORTA,5
+	nop
+	goto sixMode
+
+switchOff
+	btfss PORTB,2
+	goto modeReturn
+	clrf PORTA
+	goto switchOff
+
+modeReturn
+firstReturn
+	decfsz curMode,1
+	goto secondReturn
+	goto firstMode
+secondReturn
+	decfsz curMode,1
+	goto thirdReturn
+	goto secondMode
+thirdReturn
+	decfsz curMode,1
+	goto fourthReturn
+	goto thirdMode
+fourthReturn
+	decfsz curMode,1
+	goto fifthReturn
+	goto fourthMode
+fifthReturn
+	decfsz curMode,1
+	goto sixReturn
+	goto fifthMode
+sixReturn
+	goto sixMode
 
 Etc
 	btfss 0x1F,7
