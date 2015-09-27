@@ -34,9 +34,30 @@ PROCESSOR	PIC16F877
 	bcf PORTA, 5
 	bsf 0x1F,7
 Check
+	clrf 0x1E
+	movlw 0x07
+	movwf 0x1D
+	btfss PORTB,0
+	goto Etc
+	goto Mode		
+Mode
+	incf 0x1E,1
+	decfsz 0x1D,1
+	goto Mode
+	goto Err	 
+Err
+	bsf PORTA,5
+	clrf 0x1E
+	goto Check
+
+Etc
 	btfss 0x1F,7
 	goto Check
 	bcf 0x1F,7
+	nop
+	nop
+	nop
 	clrf PORTA
 	goto Check
+
 	END
