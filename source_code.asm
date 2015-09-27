@@ -36,6 +36,7 @@ PROCESSOR	PIC16F877
 	bsf 0x1F,7
 Check
 	clrf 0x1E
+	clrf curMode
 	movlw 0x07
 	movwf 0x1D
 	btfss PORTB,0
@@ -54,6 +55,11 @@ Err
 	goto Check
 
 modeSelect
+incf 0x1E,1
+decfsz 0x1E,1
+goto firstCheck
+goto Err
+
 firstCheck
 	decfsz 0x1E,1
 	goto secondCheck
@@ -84,6 +90,16 @@ firstMode
 	btfsc PORTB,2
 	goto switchOff
 	bcf PORTA,5
+	clrf PORTA
+	bsf PORTA,3
+	nop
+	clrf PORTA
+	bsf PORTA,2
+	nop
+	clrf PORTA
+	bsf PORTA,1
+	nop
+	clrf PORTA
 	bsf PORTA,0
 	nop
 	goto firstMode
@@ -92,6 +108,18 @@ secondMode
 	movlw 0x02
 	movwf curMode
 	bcf PORTA,5
+	nop
+	clrf PORTA
+	bsf PORTA,0
+	nop
+	clrf PORTA
+	bsf PORTA,1
+	nop
+	clrf PORTA
+	bsf PORTA,2
+	nop
+	clrf PORTA
+	bsf PORTA,3
 	nop
 	goto secondMode
 thirdMode
