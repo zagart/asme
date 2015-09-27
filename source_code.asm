@@ -27,17 +27,11 @@ PROCESSOR	PIC16F877
 	tris PORTA
 	movlw 0xff
 	tris PORTB
-	movwf PORTA
-Check
-	btfsc PORTB,0
-	goto Fire
-	goto PayOff
-PayOff
+	
 	clrf PORTA
-	goto Check
-Fire
-	clrw
-	movwf PORTA
-	bsf PORTA,0
-	goto Check
+	comf PORTA
+	bcf PORTA, 4
+	bcf PORTA, 5
+Check
+
 	END
