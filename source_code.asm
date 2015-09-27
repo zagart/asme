@@ -41,6 +41,8 @@ Check
 	goto Etc
 	goto Mode		
 Mode
+	btfsc PORTB,2
+	goto modeSelect
 	incf 0x1E,1
 	decfsz 0x1D,1
 	goto Mode
@@ -49,6 +51,9 @@ Err
 	bsf PORTA,5
 	clrf 0x1E
 	goto Check
+
+modeSelect
+
 
 Etc
 	btfss 0x1F,7
