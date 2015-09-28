@@ -39,10 +39,14 @@ Check
 	clrf curMode
 	movlw 0x07
 	movwf 0x1D
-	btfss PORTB,0
+	btfsc 0x1F,7
 	goto Etc
-	goto Mode		
+	btfss PORTB,0
+	goto Check
+	goto Mode
+		
 Mode
+	clrf 0x1C
 	btfsc PORTB,1
 	goto modeSelect
 	btfsc PORTB,0
@@ -88,11 +92,8 @@ sixCheck
 	goto sixMode
 
 firstMode
-	btfsc PORTB,3
-	bsf 0x1C,0
-	btfsc 0x1C,0
-	bsf 0x1C,1
-	
+	btfsc PORTB,4
+	goto Exit
 	bcf PORTA,5
 	clrw
 	movlw 0x01
@@ -111,10 +112,12 @@ firstMode
 	clrf PORTA
 	bsf PORTA,0
 	nop
-	btfsc 0x1C,0
 	goto secondMode
 	goto firstMode
+
 secondMode
+	btfsc PORTB,4
+	goto Exit
 	bcf PORTA,5
 	clrw
 	movlw 0x02
@@ -138,6 +141,8 @@ secondMode
 	goto thirdMode
 	goto secondMode
 thirdMode
+	btfsc PORTB,4
+	goto Exit
 	bcf PORTA,5
 	clrw
 	movlw 0x03
@@ -158,6 +163,8 @@ thirdMode
 	goto fourthMode
 	goto thirdMode
 fourthMode
+	btfsc PORTB,4
+	goto Exit
 	bcf PORTA,5
 	clrw
 	movlw 0x04
@@ -178,6 +185,8 @@ fourthMode
 	goto fifthMode
 	goto fourthMode
 fifthMode
+	btfsc PORTB,4
+	goto Exit
 	bcf PORTA,5
 	clrw
 	movlw 0x05
@@ -212,6 +221,8 @@ fifthMode
 	goto sixMode
 	goto fifthMode
 sixMode
+	btfsc PORTB,4
+	goto Exit
 	bcf PORTA,5
 	clrw
 	movlw 0x06
@@ -245,6 +256,10 @@ sixMode
 	btfsc PORTB,3
 	goto firstMode
 	goto sixMode
+
+Exit
+clrf PORTA
+goto Mode
 
 switchOff
 	btfss PORTB,2
