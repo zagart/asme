@@ -43,6 +43,10 @@ Check
 	goto Etc
 	goto Mode		
 Mode
+	nop
+	nop
+	nop
+	nop
 	btfsc PORTB,1
 	goto modeSelect
 	incf 0x1E,1
@@ -84,12 +88,12 @@ sixCheck
 	goto sixMode
 
 firstMode
+	bcf PORTA,5
 	clrw
 	movlw 0x01
 	movwf curMode
 	btfsc PORTB,2
 	goto switchOff
-	bcf PORTA,5
 	clrf PORTA
 	bsf PORTA,3
 	nop
@@ -104,10 +108,12 @@ firstMode
 	nop
 	goto firstMode
 secondMode
+	bcf PORTA,5
 	clrw
 	movlw 0x02
 	movwf curMode
-	bcf PORTA,5
+	btfsc PORTB,2
+	goto switchOff
 	nop
 	clrf PORTA
 	bsf PORTA,0
@@ -123,32 +129,96 @@ secondMode
 	nop
 	goto secondMode
 thirdMode
+	bcf PORTA,5
 	clrw
 	movlw 0x03
 	movwf curMode
-	bcf PORTA,5
+	btfsc PORTB,2
+	goto switchOff
 	nop
+	nop
+	clrf PORTA
+	bsf PORTA,0
+	bsf PORTA,1
+	nop
+	nop
+	clrf PORTA
+	bsf PORTA,2
+	bsf PORTA,3
 	goto thirdMode
 fourthMode
+	bcf PORTA,5
 	clrw
 	movlw 0x04
 	movwf curMode
-	bcf PORTA,5
+	btfsc PORTB,2
+	goto switchOff
 	nop
+	nop
+	clrf PORTA
+	bsf PORTA,0
+	bsf PORTA,3
+	nop
+	nop
+	clrf PORTA
+	bsf PORTA,1
+	bsf PORTA,2	
 	goto fourthMode
 fifthMode
+	bcf PORTA,5
 	clrw
 	movlw 0x05
 	movwf curMode
-	bcf PORTA,5
+	btfsc PORTB,2
+	goto switchOff
+	clrf PORTA
 	nop
+	bsf PORTA,1
+	bsf PORTA,2
+	bsf PORTA,3
+	nop
+	bsf PORTA,0
+	bcf PORTA,1
+	bsf PORTA,2
+	bsf PORTA,3
+	nop
+	bsf PORTA,0
+	bsf PORTA,1
+	bcf PORTA,2
+	bsf PORTA,3
+	nop
+	bsf PORTA,0
+	bsf PORTA,1
+	bsf PORTA,2
+	bcf PORTA,3
 	goto fifthMode
 sixMode
+	bcf PORTA,5
 	clrw
 	movlw 0x06
 	movwf curMode
-	bcf PORTA,5
+	btfsc PORTB,2
+	goto switchOff
+	clrf PORTA
 	nop
+	bsf PORTA,1
+	bsf PORTA,2
+	bsf PORTA,0
+	nop
+	bsf PORTA,0
+	bsf PORTA,1
+	bcf PORTA,2
+	bsf PORTA,3
+	nop
+	bsf PORTA,0
+	bcf PORTA,1
+	bsf PORTA,2
+	bsf PORTA,3
+	nop
+	bcf PORTA,0
+	bsf PORTA,1
+	bsf PORTA,2
+	bsf PORTA,3
 	goto sixMode
 
 switchOff
