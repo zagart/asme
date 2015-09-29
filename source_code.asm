@@ -1,6 +1,9 @@
 PORTA	equ 0x05
 PORTB	equ 0x06
-curMode	equ 0x1C
+button	equ 0x1A
+curMode	equ 0x1B
+mode	equ 0x1C
+temp	equ 0x1D
 
 	code
 
@@ -14,7 +17,7 @@ PROCESSOR	PIC16F877
 	movwf	STATUS
 	movlw	0xFF
 	tris	PORTB
-	movlw	0x30
+	movlw	0x308
 	tris	PORTA
 	clrw
 	movwf	PCLATH
@@ -33,236 +36,236 @@ PROCESSOR	PIC16F877
 	comf PORTA
 	bcf PORTA, 4
 	bcf PORTA, 5
-	bsf 0x1F,7
-Check
-	clrf 0x1E
+	call Delay
+	clrf PORTA
+	clrf mode
 	clrf curMode
-	movlw 0x07
-	movwf 0x1D
-	btfsc 0x1F,7
-	goto Etc
-	btfss PORTB,0
-	goto Check
-	goto Mode
+	clrf button
 		
-Mode
-	clrf 0x1C
-	btfsc PORTB,1
-	goto modeSelect
+codeEnter
+	clrf mode
+	clrf temp
 	btfsc PORTB,0
-	goto Inc
-	goto Mode 
-Inc
-	incf 0x1E,1
-	decfsz 0x1D,1
-	goto Mode
-	goto Err	 
-Err
-	bsf PORTA,5
-	clrf 0x1E
-	goto Check
+	bsf mode,2	
+	btfsc PORTB,1
+	bsf mode,1
+	btfsc PORTB,2
+	bsf mode,0
+	btfsc PORTB,3
+	goto modeSelect
+	goto codeEnter	 
 
 modeSelect
-incf 0x1E,1
-decfsz 0x1E,1
-goto firstCheck
-goto Err
-
-firstCheck
-	decfsz 0x1E,1
-	goto secondCheck
+	call errorCheck
+	clrf temp
+firstSearch
+	decfsz mode,1
+	goto secondSearch
 	goto firstMode
-secondCheck
-	decfsz 0x1E,1
-	goto thirdCheck
+secondSearch
+	decfsz mode,1
+	goto thirdSearch
 	goto secondMode
-thirdCheck
-	decfsz 0x1E,1
-	goto fourthCheck
+thirdSearch
+	decfsz mode,1
+	goto fourthSearch
 	goto thirdMode
-fourthCheck
-	decfsz 0x1E,1
-	goto fifthCheck
+fourthSearch
+	decfsz mode,1
+	goto fifthSearch
 	goto fourthMode
-fifthCheck
-	decfsz 0x1E,1
-	goto sixCheck
+fifthSearch
+	decfsz mode,1
+	goto sixSearch
 	goto fifthMode
-sixCheck
+sixSearch
 	goto sixMode
 
 firstMode
-	btfsc PORTB,4
-	goto Exit
+	btfss PORTB,5
+	call doPressed
+	btfsc PORTB,5
+	bsf temp,0
 	bcf PORTA,5
 	clrw
 	movlw 0x01
 	movwf curMode
-	btfsc PORTB,2
+	btfsc PORTB,4
 	goto switchOff
 	clrf PORTA
 	bsf PORTA,3
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,2
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,1
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,0
-	nop
+	call Delay
+	btfsc PORTB,5
 	goto secondMode
 	goto firstMode
 
 secondMode
-	btfsc PORTB,4
-	goto Exit
+	btfss PORTB,5
+	call doPressed
+	btfsc PORTB,5
+	bsf temp,0
 	bcf PORTA,5
 	clrw
 	movlw 0x02
 	movwf curMode
-	btfsc PORTB,2
+	btfsc PORTB,4
 	goto switchOff
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,0
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,1
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,2
-	nop
+	call Delay
 	clrf PORTA
 	bsf PORTA,3
-	nop
-	btfsc PORTB,3
+	call Delay
+	btfsc PORTB,5
 	goto thirdMode
 	goto secondMode
 thirdMode
-	btfsc PORTB,4
-	goto Exit
+	btfss PORTB,5
+	call doPressed
+	btfsc PORTB,5
+	bsf temp,0
 	bcf PORTA,5
 	clrw
 	movlw 0x03
 	movwf curMode
-	btfsc PORTB,2
+	btfsc PORTB,4
 	goto switchOff
-	nop
-	nop
+	call Delay
+	call Delay
 	clrf PORTA
 	bsf PORTA,0
 	bsf PORTA,1
-	nop
-	nop
+	call Delay
+	call Delay
 	clrf PORTA
 	bsf PORTA,2
 	bsf PORTA,3
-	btfsc PORTB,3
+	btfsc PORTB,5
 	goto fourthMode
 	goto thirdMode
 fourthMode
-	btfsc PORTB,4
-	goto Exit
+	btfss PORTB,5
+	call doPressed
+	btfsc PORTB,5
+	bsf temp,0
 	bcf PORTA,5
 	clrw
 	movlw 0x04
 	movwf curMode
-	btfsc PORTB,2
+	btfsc PORTB,4
 	goto switchOff
-	nop
-	nop
+	call Delay
+	call Delay
 	clrf PORTA
 	bsf PORTA,0
 	bsf PORTA,3
-	nop
-	nop
+	call Delay
+	call Delay
 	clrf PORTA
 	bsf PORTA,1
 	bsf PORTA,2
-	btfsc PORTB,3
+	btfsc PORTB,5
 	goto fifthMode
 	goto fourthMode
 fifthMode
-	btfsc PORTB,4
-	goto Exit
+	btfss PORTB,5
+	call doPressed
+	btfsc PORTB,5
+	bsf temp,0
 	bcf PORTA,5
 	clrw
 	movlw 0x05
 	movwf curMode
-	btfsc PORTB,2
+	btfsc PORTB,4
 	goto switchOff
 	bsf PORTA,0
 	bsf PORTA,1
 	bsf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bcf PORTA,0
 	bsf PORTA,1
 	bsf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bsf PORTA,0
 	bcf PORTA,1
 	bsf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bsf PORTA,0
 	bsf PORTA,1
 	bcf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bsf PORTA,0
 	bsf PORTA,1
 	bsf PORTA,2
 	bcf PORTA,3
-	btfsc PORTB,3
+	btfsc PORTB,5
 	goto sixMode
 	goto fifthMode
 sixMode
-	btfsc PORTB,4
-	goto Exit
+	btfss PORTB,5
+	call doPressed
+	btfsc PORTB,5
+	bsf temp,0
 	bcf PORTA,5
 	clrw
 	movlw 0x06
 	movwf curMode
-	btfsc PORTB,2
+	btfsc PORTB,4
 	goto switchOff
 	bsf PORTA,0
 	bsf PORTA,1
 	bsf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bsf PORTA,0
 	bsf PORTA,1
 	bsf PORTA,2
 	bcf PORTA,3
-	nop
+	call Delay
 	bsf PORTA,0
 	bsf PORTA,1
 	bcf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bsf PORTA,0
 	bcf PORTA,1
 	bsf PORTA,2
 	bsf PORTA,3
-	nop
+	call Delay
 	bcf PORTA,0
 	bsf PORTA,1
 	bsf PORTA,2
 	bsf PORTA,3
-	btfsc PORTB,3
+	btfsc PORTB,5
 	goto firstMode
 	goto sixMode
 
 Exit
 clrf PORTA
-goto Mode
+goto codeEnter
 
 switchOff
-	btfss PORTB,2
+	btfss PORTB,4
 	goto modeReturn
 	clrf PORTA
 	goto switchOff
@@ -291,11 +294,52 @@ fifthReturn
 sixReturn
 	goto sixMode
 
-Etc
-	btfss 0x1F,7
-	goto Check
-	bcf 0x1F,7
-	clrf PORTA
-	goto Check
+errorCheck
+	clrf temp
+	btfsc mode,0
+	bsf temp,0
+	btfsc mode,1
+	bsf temp,1
+	btfsc mode,2
+	bsf temp,2
+	incf temp
+	decfsz temp,1
+	goto Next
+	goto Err
+Next
+	decf temp
+	decf temp
+	decf temp
+	decf temp
+	decf temp
+	decf temp
+	decfsz temp,1
+	return
+	goto Err
+
+Err
+	bsf PORTA,5
+	clrf temp
+	goto codeEnter
+
+Iteration
+	
+	return
+
+doPressed
+	btfsc temp,0
+	goto Exit
+	return
+
+Delay
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	return
 
 	END
